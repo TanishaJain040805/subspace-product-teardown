@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subspace.money — Product Teardown | Tanisha</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --bg2: #161616;
+    --bg3: #1e1e1e;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0ede8;
+    --muted: #8a877f;
+    --accent: #7c6fff;
+    --accent2: #a78bfa;
+    --danger: #f87171;
+    --warn: #fbbf24;
+    --success: #34d399;
+    --info: #60a5fa;
+    --tag-bg: rgba(124,111,255,0.12);
+    --tag-text: #a78bfa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 32px 120px;
+  }
+
+  /* COVER */
+  .cover {
+    border-bottom: 0.5px solid var(--border2);
+    padding-bottom: 56px;
+    margin-bottom: 56px;
+  }
+
+  .cover-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cover-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent2);
+  }
+
+  .cover h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    color: #fff;
+  }
+
+  .cover h1 span {
+    color: var(--accent2);
+  }
+
+  .cover-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .meta-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .meta-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* PILL TAGS */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 28px;
+  }
+
+  .tag {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 100px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border: 0.5px solid rgba(167,139,250,0.25);
+    letter-spacing: 0.03em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 64px;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 0.5px;
+    background: var(--border);
+  }
+
+  .section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+
+  .section p {
+    color: #b0ada6;
+    margin-bottom: 12px;
+    max-width: 700px;
+  }
+
+  /* COMPANY SNAPSHOT */
+  .snapshot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 28px 0;
+  }
+
+  .snapshot-card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .snapshot-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .snapshot-num.accent { color: var(--accent2); }
+  .snapshot-num.success { color: var(--success); }
+  .snapshot-num.warn { color: var(--warn); }
+
+  .snapshot-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* FEEDBACK CARDS */
+  .feedback {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .feedback:hover {
+    border-color: var(--border2);
+  }
+
+  .feedback-header {
+    padding: 24px 28px 20px;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .feedback-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 24px;
+    padding-top: 3px;
+  }
+
+  .feedback-title-block { flex: 1; }
+
+  .feedback-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .feedback-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+
+  .pill-ux { background: rgba(96,165,250,0.12); color: #93c5fd; border: 0.5px solid rgba(96,165,250,0.2); }
+  .pill-features { background: rgba(167,139,250,0.12); color: #c4b5fd; border: 0.5px solid rgba(167,139,250,0.2); }
+  .pill-gtm { background: rgba(251,191,36,0.10); color: #fcd34d; border: 0.5px solid rgba(251,191,36,0.2); }
+  .pill-trust { background: rgba(248,113,113,0.10); color: #fca5a5; border: 0.5px solid rgba(248,113,113,0.2); }
+  .pill-compliance { background: rgba(52,211,153,0.10); color: #6ee7b7; border: 0.5px solid rgba(52,211,153,0.2); }
+
+  .feedback-severity {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--danger);
+    white-space: nowrap;
+  }
+
+  .feedback-severity.medium { color: var(--warn); }
+  .feedback-severity.low { color: var(--success); }
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* THREE PARTS */
+  .parts {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .part {
+    padding: 20px 28px;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    gap: 16px;
+  }
+
+  .part:last-child { border-bottom: none; }
+
+  .part-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    min-width: 90px;
+    padding-top: 2px;
+    line-height: 1.4;
+  }
+
+  .part-label.observed { color: #60a5fa; }
+  .part-label.problem { color: #f87171; }
+  .part-label.ship { color: #34d399; }
+
+  .part-content {
+    font-size: 14px;
+    color: #b0ada6;
+    line-height: 1.7;
+    flex: 1;
+  }
+
+  .part-content strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .part-content code {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: rgba(255,255,255,0.06);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: #fcd34d;
+  }
+
+  /* QUOTE / CALLOUT */
+  .callout {
+    background: rgba(248,113,113,0.06);
+    border-left: 2px solid var(--danger);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-size: 13px;
+    color: #fca5a5;
+    font-style: italic;
+  }
+
+  /* SCREENSHOT LABEL */
+  .screen-ref {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--bg3);
+    border: 0.5px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin: 4px 0;
+  }
+
+  /* FRAMEWORK SECTION */
+  .framework-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .fw-card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+
+  .fw-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 10px;
+  }
+
+  .fw-item {
+    font-size: 13px;
+    color: #9a978f;
+    padding: 4px 0;
+    border-bottom: 0.5px solid var(--border);
+    line-height: 1.5;
+  }
+
+  .fw-item:last-child { border-bottom: none; }
+
+  .fw-item strong { color: var(--text); font-weight: 500; }
+
+  /* CONCLUSION */
+  .conclusion {
+    background: linear-gradient(135deg, rgba(124,111,255,0.08) 0%, rgba(167,139,250,0.04) 100%);
+    border: 0.5px solid rgba(124,111,255,0.2);
+    border-radius: 16px;
+    padding: 32px;
+    margin-top: 48px;
+  }
+
+  .conclusion h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+
+  .conclusion p {
+    font-size: 14px;
+    color: #9a978f;
+    line-height: 1.8;
+    max-width: 660px;
+  }
+
+  /* FOOTER */
+  .footer {
+    border-top: 0.5px solid var(--border);
+    margin-top: 80px;
+    padding-top: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 12px;
+  }
+
+  .footer-left {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .footer-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* DIVIDER */
+  hr {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 40px 0;
+  }
+
+  @media (max-width: 600px) {
+    .page { padding: 32px 20px 80px; }
+    .part { flex-direction: column; gap: 6px; }
+    .part-label { min-width: unset; }
+    .feedback-header { flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-eyebrow">Product Intern Assignment · Vocallabs.ai</div>
+    <h1>Subspace.money<br><span>Product Teardown</span></h1>
+    <p class="cover-sub">5 sharp, non-obvious product feedbacks — each grounded in real screens, real flows, and real user pain. Written after hands-on exploration of the web app and Play Store listing.</p>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">Submitted by</span>
+        <span class="meta-value">Tanisha</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Date</span>
+        <span class="meta-value">31 May 2026</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Company</span>
+        <span class="meta-value">Subspace.money</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Role</span>
+        <span class="meta-value">Product Intern</span>
+      </div>
+    </div>
+
+    <div class="tags">
+      <span class="tag">UX</span>
+      <span class="tag">Features</span>
+      <span class="tag">GTM & ICPs</span>
+      <span class="tag">Compliance</span>
+      <span class="tag">Trust & Safety</span>
+      <span class="tag">Competitor Analysis</span>
+    </div>
+  </div>
+
+  <!-- COMPANY SNAPSHOT -->
+  <div class="section">
+    <div class="section-label">Company Snapshot</div>
+    <h2>What is Subspace?</h2>
+    <p>Subspace is India's first subscription marketplace — a platform to discover, share, split, and manage recurring subscriptions (OTT, SaaS, food, fashion) at deep discounts. It also offers rentals, gift cards, and bill payments. Founded in 2021 by IIT Madras alumni, it is bootstrapped, profitable, and deeply India-first.</p>
+
+    <div class="snapshot-grid">
+      <div class="snapshot-card">
+        <div class="snapshot-num success">₹36.5Cr</div>
+        <div class="snapshot-desc">ARR (FY25) with zero external funding</div>
+      </div>
+      <div class="snapshot-card">
+        <div class="snapshot-num accent">3.6★</div>
+        <div class="snapshot-desc">Play Store rating across 3,200+ reviews</div>
+      </div>
+      <div class="snapshot-card">
+        <div class="snapshot-num warn">3</div>
+        <div class="snapshot-desc">Full-time employees running a complex platform</div>
+      </div>
+      <div class="snapshot-card">
+        <div class="snapshot-num">100+</div>
+        <div class="snapshot-desc">Subscriptions across OTT, SaaS, fitness, tools</div>
+      </div>
+      <div class="snapshot-card">
+        <div class="snapshot-num">2021</div>
+        <div class="snapshot-desc">Founded · IIT Madras Nirmaan incubated</div>
+      </div>
+      <div class="snapshot-card">
+        <div class="snapshot-num success">Google</div>
+        <div class="snapshot-desc">Top 100 Indian Startups — AppScale Academy 2023</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FRAMEWORK -->
+  <div class="section">
+    <div class="section-label">Framework Applied</div>
+    <h2>Analytical Lens</h2>
+    <p>This teardown uses a combination of Porter's Five Forces (to understand competitive moats and threats) and Jobs-to-be-Done (to evaluate whether each feature serves the user's actual intent). UX heuristics from Nielsen Norman Group are applied to screen-level observations.</p>
+
+    <div class="framework-grid">
+      <div class="fw-card">
+        <div class="fw-title">Porter's Five Forces</div>
+        <div class="fw-item"><strong>Threat of substitutes</strong> · High — direct OTT apps, coupon platforms</div>
+        <div class="fw-item"><strong>Buyer power</strong> · High — users have zero switching cost</div>
+        <div class="fw-item"><strong>Competitive rivalry</strong> · Growing — myPaisaa, MoneyClub</div>
+        <div class="fw-item"><strong>Barriers to entry</strong> · Low — replicable model</div>
+      </div>
+      <div class="fw-card">
+        <div class="fw-title">Jobs To Be Done</div>
+        <div class="fw-item"><strong>Functional</strong> · Save money on subscriptions I already use</div>
+        <div class="fw-item"><strong>Social</strong> · Share costs with trusted people</div>
+        <div class="fw-item"><strong>Emotional</strong> · Feel in control of my recurring expenses</div>
+        <div class="fw-item"><strong>Anti-job</strong> · Don't make me feel financially exposed</div>
+      </div>
+      <div class="fw-card">
+        <div class="fw-title">UX Heuristics</div>
+        <div class="fw-item"><strong>Error prevention</strong> · Default states that cause unintended actions</div>
+        <div class="fw-item"><strong>User control</strong> · Autonomy over data visibility</div>
+        <div class="fw-item"><strong>Consistency</strong> · Same concept, different labels</div>
+        <div class="fw-item"><strong>Match with real world</strong> · Fintech conventions vs. app behavior</div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- FEEDBACKS -->
+  <div class="section">
+    <div class="section-label">5 Product Feedbacks</div>
+    <h2>The Teardown</h2>
+    <p>Each feedback follows the structure: (a) what I observed in the actual product, (b) the real user or business pain, (c) specific, actionable solution.</p>
+  </div>
+
+  <!-- FEEDBACK 1 -->
+  <div class="feedback">
+    <div class="feedback-header">
+      <div class="feedback-num">01</div>
+      <div class="feedback-title-block">
+        <div class="feedback-title">Financial wallet fully accessible with zero identity verification</div>
+        <div class="feedback-pills">
+          <span class="pill pill-compliance">Compliance</span>
+          <span class="pill pill-trust">Trust & Safety</span>
+          <span class="pill pill-ux">UX</span>
+        </div>
+      </div>
+      <div class="feedback-severity">
+        <div class="dot"></div> Critical
+      </div>
+    </div>
+    <div class="parts">
+      <div class="part">
+        <div class="part-label observed">Observed</div>
+        <div class="part-content">
+          I downloaded the app, selected language, gave location permission, and landed directly on the Explore page — no phone number, no name, no OTP, no email, nothing. When I navigated to the Wallet tab, I found a fully functional wallet interface showing Total Balance, Locked Amount, Unlocked Amount, a <strong>Withdraw button</strong>, a <strong>Send button</strong>, and an Add Money form with quick-add presets (₹100, ₹200, ₹500, ₹1000) and a "Proceed to Pay" CTA. I also accessed Payout Methods, which showed a full bank account details form (Account Number + IFSC) — again, with no login gate. The Profile page showed a "Know Your Customer" banner prominently — but KYC is never enforced anywhere in the flow.
+          <br><br>
+          <span class="screen-ref">📍 Wallet tab · Payout Methods screen · Profile KYC banner</span>
+        </div>
+      </div>
+      <div class="part">
+        <div class="part-label problem">Problem</div>
+        <div class="part-content">
+          This is a direct conflict with RBI's Prepaid Payment Instrument (PPI) guidelines. Under RBI Master Directions on PPIs (2017, updated 2021), even "small PPIs" require minimum KYC — at least mobile number verification and self-declaration — before any loading or transaction. Showing a withdrawal-enabled wallet and a bank account linking form to an anonymous, unverified user is both a regulatory compliance risk and a trust-destroying product decision. For a fintech app, trust IS the product. When users see financial tools wide open with no verification, their first instinct isn't relief — it's suspicion. Additionally, the KYC banner on the Profile page creates what designers call "compliance theatre" — the appearance of security without the enforcement. This is the worst of both worlds: it adds visual clutter without adding actual protection.
+        </div>
+      </div>
+      <div class="part">
+        <div class="part-label ship">Ship instead</div>
+        <div class="part-content">
+          Gate the entire Wallet tab and Payout Methods behind phone number verification with OTP — the moment a user taps either, trigger a lightweight login sheet. This is a single engineering change with massive compliance and trust upside. Separately, replace the decorative KYC banner with an actionable KYC progress bar ("Complete KYC to unlock withdrawals") that only disappears once the user is verified. Add a tooltip on the Locked/Unlocked distinction — "Locked funds are held during active subscriptions and released within 24h of confirmation" — since this is currently invisible and causes most refund complaints on Play Store.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK 2 -->
+  <div class="feedback">
+    <div class="feedback-header">
+      <div class="feedback-num">02</div>
+      <div class="feedback-title-block">
+        <div class="feedback-title">"Make Public" toggle is ON by default — a dark pattern that exposes users without consent</div>
+        <div class="feedback-pills">
+          <span class="pill pill-ux">UX</span>
+          <span class="pill pill-trust">Trust & Safety</span>
+        </div>
+      </div>
+      <div class="feedback-severity medium">
+        <div class="dot"></div> High
+      </div>
+    </div>
+    <div class="parts">
+      <div class="part">
+        <div class="part-label observed">Observed</div>
+        <div class="part-content">
+          When I tapped "Add Subscriptions" from the Home screen and selected Netflix Standard Plan, a modal appeared to track my subscription. The modal contains a toggle labelled <strong>"Make Public"</strong> — with helper text: "Making your subscription public allows others to see and join your group." This toggle is turned <strong>ON by default</strong>. A user who fills in their plan details and taps "Add to Track" without noticing the toggle has unknowingly listed their subscription publicly for strangers to join — without ever intending to become a group admin.
+          <br><br>
+          <span class="screen-ref">📍 Home → Add Subscriptions → Netflix modal → Make Public toggle</span>
+        </div>
+      </div>
+      <div class="part">
+        <div class="part-label problem">Problem</div>
+        <div class="part-content">
+          This is a textbook dark pattern — specifically "privacy zuckering," where a product's default settings benefit the platform (more listings = more supply = more revenue) at the expense of user privacy and intent. A user tapping "Add to Track" is expressing a personal intent: I want to manage my subscription. They are not necessarily expressing a social intent: I want to share this with strangers. By defaulting to public, Subspace conflates these two very different user jobs. This also has downstream consequences — an accidental public listing means the user may get join requests from strangers, creating confusion and potential trust issues. India's DPDP Act (2023) requires explicit, informed consent for sharing personal data. A pre-ticked "share publicly" toggle likely does not satisfy this standard.
+        </div>
+      </div>
+      <div class="part">
+        <div class="part-label ship">Ship instead</div>
+        <div class="part-content">
+          Default "Make Public" to <strong>OFF</strong>. This is a one-line code change. After the subscription is added, show a contextual nudge: "Your Netflix is tracked privately. Want to earn money by sharing a slot with others? → Make it public." This turns a dark pattern into a growth mechanic — users who opt in are genuinely motivated admins, not accidental ones. This also improves supply quality on the marketplace, since willing admins are better admins. The nudge can be A/B tested for conversion without compromising user trust.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK 3 -->
+  <div class="feedback">
+    <div class="feedback-header">
+      <div class="feedback-num">03</div>
+      <div class="feedback-title-block">
+        <div class="feedback-title">Phone number silently embedded in AI Mailbox email address — a hidden privacy breach</div>
+        <div class="feedback-pills">
+          <span class="pill pill-features">Features</span>
+          <span class="pill pill-trust">Trust & Safety</span>
+          <span class="pill pill-compliance">Compliance</span>
+        </div>
+      </div>
+      <div class="feedback-severity">
+        <div class="dot"></div> Critical
+      </div>
+    </div>
+    <div class="parts">
+      <div class="part">
+        <div class="part-label observed">Observed</div>
+        <div class="part-content">
+          In the Account section under "AI-powered Mailbox," the app has automatically created a Subspace email address for me. The generated address is <code>7587033588rylo.club</code> — literally my phone number prepended to a domain. This email was created silently, without any prompt, explanation, or consent screen during onboarding. The feature is described as "smart email filtering and management" that blocks spam and delivers only transactional emails to your group chat. There is no option shown to change, customize, or delete this address on the screen.
+          <br><br>
+          <span class="screen-ref">📍 Account → AI-powered Mailbox</span>
+        </div>
+      </div>
+      <div class="part">
+        <div class="part-label problem">Problem</div>
+        <div class="part-content">
+          Using a user's phone number as a publicly visible email address username is a severe privacy violation. Any person or service that receives an email from <code>7587033588rylo.club</code> immediately knows the sender's mobile number — a piece of personally identifiable information the user may have shared only for OTP verification. This defeats the purpose of an email alias entirely. Beyond the individual privacy harm, this likely violates the DPDP Act (2023), which requires informed consent before processing or repurposing personal data. The user never consented to having their phone number used as a public email identifier. The feature also has zero discoverability — most users will never find the AI Mailbox section and won't know this address was created on their behalf.
+        </div>
+      </div>
+      <div class="part">
+        <div class="part-label ship">Ship instead</div>
+        <div class="part-content">
+          Generate email aliases using a random username format (e.g., <code>tanisha.x7k2@subspace.mail</code>) that contains no PII. Give users the ability to customize their alias during setup with a clear consent screen explaining: "Subspace will create a private email alias for your group communications. Your phone number will not be visible." Add an opt-in flow for AI Mailbox rather than silent auto-creation — users who understand the feature will use it better. This turns a privacy liability into a genuine product differentiator: a smart, private inbox for subscription communications.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK 4 -->
+  <div class="feedback">
+    <div class="feedback-header">
+      <div class="feedback-num">04</div>
+      <div class="feedback-title-block">
+        <div class="feedback-title">No trust signals on group listings — the root cause of Subspace's refund and kick-out crisis</div>
+        <div class="feedback-pills">
+          <span class="pill pill-features">Features</span>
+          <span class="pill pill-ux">UX</span>
+          <span class="pill pill-trust">Trust & Safety</span>
+        </div>
+      </div>
+      <div class="feedback-severity">
+        <div class="dot"></div> High
+      </div>
+    </div>
+    <div class="parts">
+      <div class="part">
+        <div class="part-label observed">Observed</div>
+        <div class="part-content">
+          The Shared Subscriptions section on the Explore page lists groups with only three data points visible on each card: service name (truncated — e.g., "Netflix Standard Plan"), per-device price, and group count (e.g., "149+ groups"). There is no admin rating, no verified badge, no response time, no kick history, no slot availability, no review count visible at listing level. A user choosing between 149+ Netflix Premium groups has zero quality signal — they are choosing blind. Every card looks identical regardless of admin quality.
+          <br><br>
+          <span class="screen-ref">📍 Explore → Shared Subscriptions grid</span>
+
+          <div class="callout">Play Store reviews confirm the downstream damage: "Admin removed me from the group because I requested an OTP twice." "Subscription hidden without explanation, support not responding." "Once you pay, you lose your money if the subscriber logs you out." These are not edge cases — they reflect a systemic trust gap.</div>
+        </div>
+      </div>
+      <div class="part">
+        <div class="part-label problem">Problem</div>
+        <div class="part-content">
+          Subspace's core product requires users to pay real money to a stranger and trust that stranger to maintain access, share OTPs, and not kick them arbitrarily. This is an inherently high-trust transaction. Yet the listing surface provides no trust infrastructure whatsoever — no reputation system, no accountability mechanism, no dispute signal. The result is a power asymmetry: admins hold all the cards (credentials, group control, refund decisions) while members have no recourse. This isn't just a UX problem — it's the primary driver of the 3.6★ rating, the negative reviews, and the refund requests. Fixing the listing surface addresses the symptom; fixing the underlying admin accountability model addresses the cause.
+        </div>
+      </div>
+      <div class="part">
+        <div class="part-label ship">Ship instead</div>
+        <div class="part-content">
+          Introduce an <strong>Admin Trust Score</strong> — a composite metric visible on every listing card, computed from: response time to OTP requests, kick rate (% of members removed vs. completed tenure), review score from past members, and tenure on platform. Surface this as a simple badge system: "Verified Admin · 4.8★ · 98% completion rate." Add a <strong>"Subspace Guaranteed"</strong> tier for top-performing admins where Subspace escrows payment and mediates disputes — this directly competes with the trust gap and creates a premium supply tier. Also fix card truncation: "Netflix Standard Plan · 1 Month" should never be cut to "Netflix Standard Plan ·..." — this is a CSS overflow fix that takes an hour.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK 5 -->
+  <div class="feedback">
+    <div class="feedback-header">
+      <div class="feedback-num">05</div>
+      <div class="feedback-title-block">
+        <div class="feedback-title">The app tries to serve three incompatible ICPs in one surface — and serves none of them well</div>
+        <div class="feedback-pills">
+          <span class="pill pill-gtm">GTM & ICPs</span>
+          <span class="pill pill-features">Features</span>
+          <span class="pill pill-ux">UX</span>
+        </div>
+      </div>
+      <div class="feedback-severity medium">
+        <div class="dot"></div> High
+      </div>
+    </div>
+    <div class="parts">
+      <div class="part">
+        <div class="part-label observed">Observed</div>
+        <div class="part-content">
+          The Home screen of the app surfaces four feature cards to a first-time user: "Add Subscriptions," "Bill Payments," "Events (Bid to earn exclusive rewards)," and <strong>"Sell Products — Manage & list your vendor products."</strong> Tapping "Sell Products" reveals a full Vendor Dashboard ("Sell Products. Grow Revenue.") with product listing tools, pricing controls, and live status tracking — accessible without any login. The Blogs section contains a category called "Superflow" (a separate B2B product by the same founder) with no explanation for consumer users. Meanwhile, the Explore page — the most compelling screen in the app — is buried as the second navigation tab, not the default landing screen.
+          <br><br>
+          <span class="screen-ref">📍 Home → Sell Products → Vendor Dashboard · Blogs → Superflow category · Navigation tab order</span>
+        </div>
+      </div>
+      <div class="part">
+        <div class="part-label problem">Problem</div>
+        <div class="part-content">
+          Subspace is simultaneously targeting three distinct ICPs: (1) consumers who want to save on subscriptions, (2) subscription group admins who want to earn by sharing, and (3) B2B vendors who want to list products. These are fundamentally different users with different intents, different trust requirements, and different activation flows. Mixing all three into a single undifferentiated Home screen creates what product teams call "feature soup" — the user cannot quickly understand what the app is for or what to do first. A college student looking to save on Netflix has zero context for a Vendor Dashboard. A vendor has zero context for subscription sharing. This ICP confusion also manifests in the navigation: the Explore page (best for consumers) is Tab 2, while Home (best for nobody) is Tab 1. The Refer & Earn page also contains a live bug — it displays "50000% off up to ₹50" instead of the intended "50% off" — a copywriting error on the app's primary viral growth mechanic.
+          <br><br>
+          <span class="screen-ref">📍 Account → Refer & Earn → "50000% off" live copy error</span>
+        </div>
+      </div>
+      <div class="part">
+        <div class="part-label ship">Ship instead</div>
+        <div class="part-content">
+          Introduce a lightweight role-selection during onboarding — two paths: "I want to save on subscriptions" (consumer) and "I want to share/sell" (admin/vendor). This single screen dramatically simplifies the experience for both segments. For consumers: default landing tab to Explore, remove Vendor Dashboard from Home, add a simple savings dashboard. For admins and vendors: surface earning tools, admin analytics, and group management in a dedicated experience (or a separate lightweight app, à la Swiggy vs. Swiggy for Business). Fix the Refer & Earn copy bug immediately — "50000% off" is live on a viral-sharing surface and is destroying referral credibility every day it remains.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONCLUSION -->
+  <div class="conclusion">
+    <h3>The Bigger Picture</h3>
+    <p>Subspace has built something genuinely rare — a bootstrapped, profitable marketplace with real network effects and ₹36.5Cr ARR. The core insight (subscription sharing as a savings mechanism) is strong and India-native. The moats are real: data flywheel, first-mover in India's subscription marketplace, and a founder willing to go all-in.</p>
+    <br>
+    <p>But the product is at an inflection point. The 3.6★ Play Store rating, the trust gap between admins and members, the compliance exposure, and the ICP confusion are not minor polish issues — they are structural risks that compound as the platform scales. A bad experience with one admin poisons the well for the entire marketplace. A compliance incident with RBI stops everything.</p>
+    <br>
+    <p>The 5 feedbacks above are ordered by impact on trust and retention — the two things that will determine whether Subspace becomes India's subscription OS or a cautionary tale. Each one is a Day-1 priority, not a roadmap item.</p>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">Tanisha · Product Intern Application · Vocallabs.ai</div>
+    <div class="footer-right">Subspace.money Teardown · 31 May 2026</div>
+  </div>
+
+</div>
+</body>
+</html>
